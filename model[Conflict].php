@@ -22,37 +22,34 @@ class websiteModel extends database {
     }
 
     /* User Tables */
-
-    // Return user_id if user found; false otherwise.
     function validateUser($user_name, $password) {
         $where = "name = ? AND password = ?";       // where clauses MUST be parameterized to prevent SQL Injection attacks
         $arr =  array($user_name, $password);
         $rows = $this->select("users", $where, $arr);
-        return (sizeof($rows) === 1)? $rows[0]['userid'] : FALSE;
+        echo "ROWS:".$user_name.$password.sizeof($rows);
+        if  (sizeof($rows) === 1) {
+            print_r($rows);
+            return $row["userid"];
+        }
+        else return false; 
     }
+
     /* Session Tables */
     function readSession($session_id) {
-        $where = " sessionid = ? "; 
+        $where = " id = ? "; 
         $arr = array ($session_id);
         $rows = $this->select("sessions", $where, $arr);
- //       echo "Read Session Array9999999999".$session_id;
-        echo "----READSESSIONROWS: ".$session_id ;    
         print_r($rows);
         return $rows;
     }
-
     function deleteSession($session_id){ 
         $where = "sessionid = ?";
         $arr = array($session_id);
         return $this->delete("sessions", $where, $arr); // returns rowcount
     }
-    
     function addSession($session_id, $data) {
-        $where = "";
-        echo "AAAAAAAAAAAAA".$session_id;
         $arr = array ("sessionid" => $session_id, "data" => $data);
-        $rows = $this->insert("sessions", $arr );
-        //$rows = $this->update("sessions", $data,  $arr );
+        $rows = $this->insert("session", $arr );
         return $rows;
     }
 /*

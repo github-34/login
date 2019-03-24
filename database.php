@@ -16,7 +16,7 @@
 class database {
     private $db = "";
 
-	public function __construct($db_host, $db_driver, $db_uname, $db_upass, $db_name) {				// Equivalently use class name: public function database ($uname, $upass, $dbname, $dbdriver) {	
+	public function __construct($db_host, $db_driver, $db_uname, $db_upass, $db_name) {
 		try {
             switch($db_driver) {
                 case "mysql":
@@ -29,16 +29,15 @@ class database {
 			$this->db = new PDO($connstr, $db_uname, $db_upass);   
             $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);         // Disable the emulation of prepared statementsm: MySQL database real prepared statements are not used by default. makes sure the statement and the values aren't parsed by PHP before sending it to the MySQL server (giving a possible attacker no chance to inject malicious SQL).
             $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // The script will not stop with a Fatal Error and errors can be caught
-
 		} catch(PDOException $e) {
-            echo "Connection to database was unsuccessful:".$e->getMessage(); 
+            echo "Database connection unsuccessful:".$e->getMessage(); 
             exit(1);
         }
 	}	
     public function run($sql, $bind=array()) {
         $sql = trim($sql);
         try {
-            $result = $this->db->prepare($sql);         //
+            $result = $this->db->prepare($sql);         // PHP escape characters
             $result->execute($bind);
             return $result;
         } catch (PDOException $e) {
@@ -57,15 +56,12 @@ class database {
     }
     public function select($table, $where="", $bind=array(), $fields="*") {
         $sql = "SELECT " . $fields . " FROM " . $table;
-        if(!empty($where))
-            $sql .= " WHERE " . $where;
-        $sql .= ";";
+        (empty($where)) ? $sql .= ";" : $sql .= " WHERE " . $where . ";" ;
         $result = $this->run($sql, $bind);
         $result->setFetchMode(PDO::FETCH_ASSOC);
         $rows = array();
-        while($row = $result->fetch()) {
+        while($row = $result->fetch())
             $rows[] = $row;
-        }
         return $rows;
     }
     public function update($table, $data, $where, $bind=array()) {
@@ -80,7 +76,6 @@ class database {
         $sql .= " WHERE " . $where . ";";
         foreach($fields as $field)
             $bind[":update_$field"] = $data[$field];
-        
         $result = $this->run($sql, $bind);
         return $result->rowCount();
     }
@@ -88,7 +83,29 @@ class database {
         $sql = "DELETE FROM " . $table . " WHERE " . $where . ";";
         $result = $this->run($sql, $bind);
         return $result->rowCount();
-    }	
+    }
+    private function filter($table, $data) {
+        $driver = 'mysql';
+        if($driver == 'mysql') {
+            $sql = "DESCRIBE " . $table . ";";
+            $key = "Field";
+        } else {    
+            $sql = "SELECT column_name FROM information_schema.columns WHERE table_name = '" . $table . "';";
+            $key = "column_name";
+        }   
+        if(false !== ($list = $this->run($sql))) {
+            $fields = array();
+            foreach($list as $record)
+                $fields[] = $record[$key];
+            return array_values(array_intersect($fields, array_keys($data)));
+        }
+        return array();
+    }
+
+//    Insert: Insert new record
+//  Update: Update existing record
+//  Replace: works exactly like INSERT, except that if an old row in the table has the same value as a new row for a PRIMARY KEY or a UNIQUE index, the old row is deleted before the new row is inserted
+
 }
 
 ?>

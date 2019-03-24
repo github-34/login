@@ -17,7 +17,7 @@ class View {
             else                                        // fail: incorrect password
                 echo $this->loginPage(1);
            }
-        elseif (isset($_POST['logout']))  {                //logout from mainpage
+        elseif ($this->controller->verifyPostLogout() ) {                //logout from mainpage
             $this->controller->logout();
             echo $this->loginPage(2);
         }
@@ -32,7 +32,8 @@ class View {
         $page=$page."<form id='login' method='post' class='login' action=".htmlspecialchars($_SERVER['PHP_SELF']).">";
         $page=$page."<input name='uname' placeholder='Username'>";
         $page=$page."<input name='passwd' type='password' placeholder='Password'>";
-       
+        $session = $this->controller->getSess();
+        $page.= "<p style='color:#32CD32;'> Vars:<br> uname: ".$session->getUsername()."<br>pass: ".$session->getPassword()."<br>SID: ".$session->getSessionID()."</p>";
         if ($msg === 1)     // Incorrect login
             $page=$page."<p style='color:#DC143C;' >Incorrect Username or Password</p>";
         elseif ($msg === 2) // Logout successful
@@ -49,12 +50,17 @@ class View {
     public function mainPage() {
         $header = "<!DOCTYPE html><html><head><link href='https://fonts.googleapis.com/css?family=Asap' rel='stylesheet'><link rel='stylesheet' href='css/login-compact.css'></head><body>";
         $footer = "</body></html>";      
+        
         $page=$header;
-        $page=$page."<form id='logout' method='post' class='login' action=".htmlspecialchars($_SERVER['PHP_SELF']).">";
-        $page=$page."<p style='color:#FFD700;'> Main Page </p><br>";
-        $page=$page."<button name='logout' type='submit'>Logout</button>";
-        $page=$page."</form>";
-        $page=$page.$footer;
+
+        $page.= "<form id='logout' method='post' class='login' action=".htmlspecialchars($_SERVER['PHP_SELF']).">";
+        $page.= "<p style='color:#FFD700;'> Main Page </p><br>";
+        $page.= "<p style='color:#FFD700;'> Shrodering<br>Theorem (Godel): <br> Snow <br> phrasals: put off, taken on </p>";
+        $session = $this->controller->getSess();
+        $page.= "<p style='color:#32CD32;'> Vars:<br> uname: ".$session->getUsername()."<br>pass: ".$session->getPassword()."<br>SID: ".$session->getSessionID()."</p>";
+        $page.= "<button name='logout' type='submit'>Logout</button>";
+        $page.= "</form>";
+        $page.= $footer;
         return $page;
     }
 }
