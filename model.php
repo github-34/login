@@ -35,21 +35,18 @@ class websiteModel extends database {
         $where = " sessionid = ? "; 
         $arr = array ($session_id);
         $rows = $this->select("sessions", $where, $arr);
- //       echo "Read Session Array9999999999".$session_id;
-        echo "----READSESSIONROWS: ".$session_id ;    
-        print_r($rows);
         return $rows;
     }
 
     function deleteSession($session_id){ 
-        $where = "sessionid = ?";
+        $where = " sessionid = ?";
         $arr = array($session_id);
         return $this->delete("sessions", $where, $arr); // returns rowcount
     }
     
     function addSession($session_id, $data) {
         $where = "";
-        echo "AAAAAAAAAAAAA".$session_id;
+        echo "<BR>\n-------Model-Insert:".$session_id.",".$data;
         $arr = array ("sessionid" => $session_id, "data" => $data);
         $rows = $this->insert("sessions", $arr );
         //$rows = $this->update("sessions", $data,  $arr );

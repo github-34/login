@@ -9,7 +9,6 @@ require('session.php');
 class Controller {
     private $model;
     private $sess;
-
     private $userid;
 
     public function __construct($model) {

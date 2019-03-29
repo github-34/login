@@ -52,16 +52,16 @@ class MySessionHandler implements SessionHandlerInterface {
 		$savePath = '';
     	$sessionName = '';
     	//$this->sessid = session_id();
-    	//echo "Session Handler Open: sssid ".$this->sessid."----";
+    	echo "<BR>\nSession Handler Open: savepath: ".$save_path.", name:".$session_name."----";
     	return true;
 	}
 
 	public function close(){
-		echo "Session Handler Closed: sssid ".$this->sessid."----";
+		echo "<BR>\nSession Handler Closed: ----";
 		return true;  
 	}
 	public function destroy($session_id) {
-		echo "Session Handler Destroy: sssid ".$this->sessid."----";
+		echo "<BR>\nSession Handler Destroy: sssid ".$this->sessid."----";
 		$this->model->deleteSession($session_id);
 		unset($_SESSION['uname']);
         unset($_SESSION['passwd']);
@@ -70,19 +70,15 @@ class MySessionHandler implements SessionHandlerInterface {
         session_detroy();
 	}
 	public function read($session_id){
-		/*echo "Session Handler ReaD:";
-		echo "Session Handler ReaD: sssid ".$this->sessid.", session_id".$session_id."----";
-		$data = $this->model->readSession($session_id);
-		if ($data !== false)
-    		return $data;
-    	else */
-    		return '';
+		echo "<BR>\nSession Handler Read: session_id".$session_id."----";
+		$rows = $this->model->readSession($session_id);
+		print_r($rows[0]);
+		return $rows; 
 	}
 	public function write($session_id, $data) {
-		echo "Session Handler Write: sssid ".$this->sessid."-";
-//		print_r($data);
+		echo "<BR>\nSession Handler Write: sessionid ".$session_id."--, data:".$data;
 		if (isset($session_id))
-			$this->model->addSession($this->sessid, $data);
+			$this->model->addSession($session_id, $data);
 		return true;
 	}
 	// Garbage Collection: 
@@ -95,7 +91,6 @@ class MySessionHandler implements SessionHandlerInterface {
 
 	*/
 	public function initialize() {
-
 		if ( isset($_POST['uname']) )
              $this->username = $_POST['uname'];
         if (  isset($_POST['passwd']) )
@@ -106,7 +101,7 @@ class MySessionHandler implements SessionHandlerInterface {
         if ( isset($_SESSION['session_id']))
         	$this->sessid=session_id();
 
-        echo "Session Initialized: un:".$this->username."pass:".$this->password."logout:".$this->logout."session id:".$this->sessid."----";
+        echo "<BR>\nSession Initialized: un:".$this->username."pass:".$this->password."logout:".$this->logout."session id:".$this->sessid."----";
         // Erase Session data
     //    print_r($_SESSION);
       //  print_r($_POST);
