@@ -4,7 +4,7 @@
 	SessionHandlerInterface:  
 		interface which defines a prototype for creating a custom 
 		session handler, in thise case one that stores session date in a database
- Methods */
+	Methods */
 
 /*
 interface  SessionHandlerInterface {
@@ -18,7 +18,6 @@ interface  SessionHandlerInterface {
 
 class MySessionHandler implements SessionHandlerInterface {
 	
-
 	private $model;
 
  	// POST Variables Set
@@ -30,12 +29,10 @@ class MySessionHandler implements SessionHandlerInterface {
 	private $sessid;
 	private $access_time;
 	
-	
- 	public function __construct($model) {
+ 	public function __construct($model)
+ 	{
  		$this->model = $model;
- //		$this->sessid = session_id();
- //		echo "Session Handler Constructor: sssid ".$this->sessid."----";
-	}
+ 	}
 
 	/* 
 		SESSION HANDLER IMPLEMENTATION 
@@ -47,50 +44,17 @@ class MySessionHandler implements SessionHandlerInterface {
    	* @param string $savePath; local path for storing session in files; not used in this implementation since everything stored in DB; 
    	* @param string $session_name; ???
    	* @return boolean
-   */
-	public function open($save_path, $session_name) {  
-		$savePath = '';
-    	$sessionName = '';
-    	//$this->sessid = session_id();
-    	echo "<BR>\nSession Handler Open: savepath: ".$save_path.", name:".$session_name."----";
+   	**/
+	public function open($save_path, $session_name)
+	{
+    	if (DEBUG) View::print_rr("-------Session Handler Open: savepath:", $save_path);  
+    	if (DEBUG) View::print_rr("-------Session Handler Open: session_name:", $session_name);  
+    	
     	return true;
 	}
 
-	public function close(){
-		echo "<BR>\nSession Handler Closed: ----";
-		return true;  
-	}
-	public function destroy($session_id) {
-		echo "<BR>\nSession Handler Destroy: sssid ".$this->sessid."----";
-		$this->model->deleteSession($session_id);
-		unset($_SESSION['uname']);
-        unset($_SESSION['passwd']);
-        unset($_SESSION['logout']);
-        unset($_SESSION);
-        session_detroy();
-	}
-	public function read($session_id){
-		echo "<BR>\nSession Handler Read: session_id".$session_id."----";
-		$rows = $this->model->readSession($session_id);
-		print_r($rows[0]);
-		return $rows; 
-	}
-	public function write($session_id, $data) {
-		echo "<BR>\nSession Handler Write: sessionid ".$session_id."--, data:".$data;
-		if (isset($session_id))
-			$this->model->addSession($session_id, $data);
-		return true;
-	}
-	// Garbage Collection: 
-	public function gc($maxlifetime) {
-		return 1;
-	}
-
-	/*
-		 SESSION FUNCTIONS 
-
-	*/
-	public function initialize() {
+	public function read($session_id)
+	{
 		if ( isset($_POST['uname']) )
              $this->username = $_POST['uname'];
         if (  isset($_POST['passwd']) )
@@ -101,32 +65,88 @@ class MySessionHandler implements SessionHandlerInterface {
         if ( isset($_SESSION['session_id']))
         	$this->sessid=session_id();
 
-        echo "<BR>\nSession Initialized: un:".$this->username."pass:".$this->password."logout:".$this->logout."session id:".$this->sessid."----";
-        // Erase Session data
-    //    print_r($_SESSION);
-      //  print_r($_POST);
+		$rows = $this->model->readSession($session_id);
 
-     //   if ( isset($_POST['uname']) & isset($_POST['passwd']) ) {
-       // 	session_regenerate_id();
-  //      	sessionid();
-        //}
-
+		/*if ( sizeof($rows) === 1) 
+			$ret = implode('**',$rows);
+		elseif (sizeof($rows) > 1) 
+			$ret = implode('**',$rows[0]);
+		else*/
+		$ret = '';
+	
+		if (DEBUG) View::print_rr("-------Session Handler Read: session_id:", $session_id);  
+		if (DEBUG) View::print_rr("-------Session Handler Read: rows:", $rows);  
+		
+		return $ret; 
 	}
 
-	public function getUsername() {
+	public function write($session_id, $data)
+	{
+		if (DEBUG) View::print_rr("-------Session: write (sessionid)", $session_id);  
+		if (DEBUG) View::print_rr("-------Session: write (data)", $data);  
+		
+		if (isset($session_id))
+			$this->model->addSession($session_id, $data);
+		return true;
+	}
+
+	public function close()
+	{
+		if (DEBUG) View::print_rr("-------Session: close",'');  
+		
+		return true;  
+	}
+
+	public function destroy($session_id)
+	{
+		if (DEBUG) View::print_rr("---Controller: logout: DESTROYING SESSION: ", $session_id);
+		//session_destroy(); //$this->sess->destroy($sess->getSessionID());
+		
+		$this->model->deleteSession($session_id);
+		unset($_SESSION['uname']);
+        unset($_SESSION['passwd']);
+        unset($_SESSION['logout']);
+        unset($_SESSION);
+        session_detroy();
+	}
+
+	// Garbage Collection: 
+	public function gc($maxlifetime)
+	{
+		return 1;
+	}
+	
+	/*
+		 SESSION FUNCTIONS 
+
+	*/
+	public function outputSession()
+	{
+        if (DEBUG) View::print_rr("output session: Session Initialized::",$this->sessid); //.$this->username."pass:".$this->password."logout:".$this->logout."session id:".$this->sessid."----";
+	}
+
+	public function getUsername()
+	{
 		//return isset($_POST['uname']);
 		return $this->username;
 	}
-	public function getPassword() {
+
+	public function getPassword()
+	{
 		return $this->password;
 		//return isset($_POST['passwd'])
 	}
-	public function getLogout() {
+
+	public function getLogout()
+	{
 		return $this->logout;
 		//return isset($_POST['passwd'])
 	}
-	public function getSessionID() {
+
+	public function getSessionID()
+	{
 		return session_id();
 	}
+
 }
 ?>

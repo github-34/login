@@ -2,66 +2,68 @@
 
 
 class View {
-    private $model;
-    private $controller;
- 
-    public function __construct($controller, $model) {
-        $this->controller = $controller;
-        $this->model = $model;
-    }
-	
-    public function outputLogin(){ 
-        if ($this->controller->verifyPostLogin() )  {   //login attempt
-            if ($this->controller->verifyLogin() )      // success
-                echo $this->mainPage();
-            else                                        // fail: incorrect password
-                echo $this->loginPage(1);
-           }
-        elseif ($this->controller->verifyPostLogout() ) {                //logout from mainpage
-            $this->controller->logout();
-            echo $this->loginPage(2);
-        }
-        else                                             // regular page; no login attempt or logout
-            echo $this->loginPage(0);
+
+    public function __construct()
+    {
+
     }
 
-    public function loginPage($msg) {
-        $header = "<!DOCTYPE html><html><head><link href='https://fonts.googleapis.com/css?family=Asap' rel='stylesheet'><link rel='stylesheet' href='css/login-compact.css'></head><body>";
-        $footer = "</body></html>";      
-        $page=$header;
-        $page=$page."<form id='login' method='post' class='login' action=".htmlspecialchars($_SERVER['PHP_SELF']).">";
-        $page=$page."<input name='uname' placeholder='Username'>";
-        $page=$page."<input name='passwd' type='password' placeholder='Password'>";
-        $session = $this->controller->getSess();
-        $page.= "<p style='color:#32CD32;'> Vars:<br> uname: ".$session->getUsername()."<br>pass: ".$session->getPassword()."<br>SID: ".$session->getSessionID()."</p>";
-        if ($msg === 1)     // Incorrect login
-            $page=$page."<p style='color:#DC143C;' >Incorrect Username or Password</p>";
-        elseif ($msg === 2) // Logout successful
-            $page=$page."<p style='color:#32CD32;' >Logged Out Successfully</p>";
-        else                // No Message at all.  
-            $page=$page."<p></p>";
+    public function loginPage($msg) 
+    {
+        $page = $this->header();
+        $page.= "<form id='login' method='post' class='login' action=".htmlspecialchars($_SERVER['PHP_SELF']).">";
+        $page.= "<input name='uname' placeholder='Username'>";
+        $page.= "<input name='passwd' type='password' placeholder='Password'>";
 
-        $page=$page."<button type='submit'>Login</button>";
-        $page=$page."</form>";
-        $page=$page.$footer;
-        return $page;
-    }
-
-    public function mainPage() {
-        $header = "<!DOCTYPE html><html><head><link href='https://fonts.googleapis.com/css?family=Asap' rel='stylesheet'><link rel='stylesheet' href='css/login-compact.css'></head><body>";
-        $footer = "</body></html>";      
-        
-        $page=$header;
-
-        $page.= "<form id='logout' method='post' class='login' action=".htmlspecialchars($_SERVER['PHP_SELF']).">";
-        $page.= "<p style='color:#FFD700;'> Main Page </p><br>";
-        $page.= "<p style='color:#FFD700;'> Shrodering<br>Theorem (Godel): <br> Snow <br> phrasals: put off, taken on </p>";
-        $session = $this->controller->getSess();
-        $page.= "<p style='color:#32CD32;'> Vars:<br> uname: ".$session->getUsername()."<br>pass: ".$session->getPassword()."<br>SID: ".$session->getSessionID()."</p>";
-        $page.= "<button name='logout' type='submit'>Logout</button>";
+        if ($msg === 1)     // Login Unsuccessful
+            $page.= "<p style='color:#DC143C;' >Incorrect Username or Password</p>";
+        elseif ($msg === 2) // Logout Successful
+            $page.= "<p style='color:#32CD32;' >Logged Out Successfully</p>";
+        else                // Neither: for initial form display
+            $page.= "<p></p>";
+        $page.= "<button type='submit'>Login</button>";
         $page.= "</form>";
-        $page.= $footer;
+        $page.=$this->footer();
         return $page;
+    }
+
+    public function mainPage() 
+    {   
+        $page = $this->header();
+        $page.= "<form id='logout' method='post' class='login' action=".htmlspecialchars($_SERVER['PHP_SELF']).">";
+        $page.= "<h3 style='color:#FFD700;'>Main Page </h3>";
+        $page.= "<br><br><br><br><br><br>";
+        $page.= "<p style='color:#bfdceb;'> </p>";
+        $page.= "<p style='color:#bfdceb;'> Main page content</p>";
+        $page.= "<p style='color:#bfdceb;'> </p>";
+        $page.= "<p></p><p><br></p>";
+        $page.= "<button name='loggedout' type='submit' value='1'>Logout</button>";
+        $page.= "</form>";
+        $page.= $this->footer();
+        return $page;
+    }
+
+    private function header()
+    {
+        $header = "<!DOCTYPE html><html><head>";
+        $header.= "<link href='https://fonts.googleapis.com/css?family=Asap' rel='stylesheet'>";
+        $header.= "<link href='css/login-compact.css' rel='stylesheet'></head><body>";
+        return $header;
+    }
+
+    private function footer()
+    {
+        $footer = "</body></html>";      
+        return $footer;
+    }
+
+    public static function print_rr($title, $obj)
+    {
+        echo "<BR><p style='color:white'>".$title."</p>";
+        echo "<PRE><p style='color:white'>";
+        print_r($obj);
+        echo "</p></PRE>";
     }
 }
+
 ?>
